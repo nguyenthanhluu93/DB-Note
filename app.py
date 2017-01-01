@@ -9,6 +9,7 @@ mlab.connect()
 class Note(Document):
     title = StringField()
     content = StringField()
+    name = StringField()
 
 #n = Note(title="A first note", content="Crazy day")
 #n.save()
@@ -23,6 +24,7 @@ api = Api(app)
 parser = reqparse.RequestParser()
 parser.add_argument("title", type=str, location="json")
 parser.add_argument("content", type=str, location="json")
+parser.add_argument("name", type=str, location="json")
 
 @app.route('/')
 def hello_world():
@@ -35,7 +37,8 @@ class NoteListRes(Resource):
         args = parser.parse_args()
         title = args["title"]
         content = args["content"]
-        new_note = Note(title=title, content=content)
+        name = args["name"]
+        new_note = Note(title=title, content=content, name=name)
         new_note.save()
         return mlab.item2json(new_note)  #return {"status": "ok"}
 
@@ -56,9 +59,10 @@ class NoteRes(Resource):
         args = parser.parse_args()
         title = args["title"]
         content = args["content"]
+        name = args["name"]
         all_notes = Note.objects
         found_note = all_notes.with_id(note_id)
-        found_note.update(set__title=title, set__content=content)
+        found_note.update(set__title=title, set__content=content, set__name=name)
         return {"code": 1, "status":"OK"}, 200
 
 api.add_resource(NoteListRes, "/api/note")
